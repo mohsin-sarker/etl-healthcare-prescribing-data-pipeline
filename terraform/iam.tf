@@ -3,7 +3,7 @@
 # Create IAM role for lambda nhs raw data handler
 resource "aws_iam_role" "nhs_data_handler_role" {
   name = var.lambda_role_name
-  assume_role_policy = jsondecode({
+  assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
       Action = "sts:AssumeRole",
@@ -19,8 +19,9 @@ resource "aws_iam_role" "nhs_data_handler_role" {
 # Create IAM Policy to put and read objects from S3 Bucket
 resource "aws_iam_policy" "s3_lambda_policy" {
   name = "s3_bucket_lambda_policy"
-  policy = jsondecode({
-    version = "2012-10-17",
+
+  policy = jsonencode({
+    Version = "2012-10-17",
     Statement = [
         {
         Action = [
@@ -28,12 +29,12 @@ resource "aws_iam_policy" "s3_lambda_policy" {
             "s3:GetObject",
             "s3:ListBucket",
         ],
-        Effect   = "Allow"
-        Resource = "arn:aws:s3:::${var.s3_bucket_name}/*"
-    },
-    {
-        # more action to add here
-    },
+        Effect   = "Allow",
+        Resource = [
+            "arn:aws:s3:::${var.s3_bucket_name}",
+            "arn:aws:s3:::${var.s3_bucket_name}/*"
+        ]
+    }
     ]
   })
 }
@@ -41,6 +42,6 @@ resource "aws_iam_policy" "s3_lambda_policy" {
 
 ############## Attache IAM Policy to Lambda Role ###########
 resource "aws_iam_role_policy_attachment" "s3_lambda_policy_attachment" {
-  role = aws_iam_role.nhs_data_handler_role
+  role = aws_iam_role.nhs_data_handler_role.name
   policy_arn = aws_iam_policy.s3_lambda_policy.arn
 }

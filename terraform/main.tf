@@ -21,7 +21,7 @@ terraform {
   backend "s3" {
     bucket = "elt-healthcare-prescribing-congif-bucket"
     key = "terraform.tfstate"
-    region = var.region_name
+    region = "eu-west-2"
   }
 }
 
